@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: soc-agent-worker
+  namespace: lensvault-prod
+  labels:
+    app: soc-agent-worker
+spec:
+  replicas: 5 # Highly available AI workers
+  selector:
+    matchLabels:
+      app: soc-agent-worker
+  template:
+    metadata:
+      labels:
+        app: soc-agent-worker
+    spec:
+      containers:
+      - name: agent-worker
+        image: ghcr.io/lensvaultltd/soc-agent-worker:latest
+        env:
+        - name: TEMPORAL_ADDRESS
+          value: "temporal-frontend.lensvault-prod.svc.cluster.local:7233"
+        - name: REDIS_URL
+          value: "redis://redis-master.lensvault-prod.svc.cluster.local:6379"
+        - name: CLICKHOUSE_URL
+          value: "clickhouse.lensvault-prod.svc.cluster.local:8123"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: soc-agent-worker-hpa
+  namespace: lensvault-prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: soc-agent-worker
+  minReplicas: 5
+  maxReplicas: 50 # Auto-scales based on SIEM alert volume
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
