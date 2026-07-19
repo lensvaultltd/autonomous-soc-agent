@@ -1,4 +1,4 @@
-# Lens Vault AI SOC (Project Sentinel)
+# Lens Vault AI SOC 
 
 **Owner:** Lens Vault Ltd.  
 **Mission:** A production-grade AI-powered Security Operations Center (SOC) operating as a Managed Security Service Provider (MSSP).
