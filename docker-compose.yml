@@ -1,7 +1,17 @@
 version: '3.8'
 
 services:
-  # Base Infrastructure
+  # --- IAM & Authentication ---
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.5
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    ports:
+      - "8080:8080"
+      
+  # --- Base Infrastructure ---
   postgres:
     image: postgres:15-alpine
     environment:
@@ -40,8 +50,3 @@ services:
       - POSTGRES_SEEDS=postgres
     depends_on:
       - postgres
-
-  # Microservices placeholders for Phase 1
-  # api-gateway: ...
-  # agent-worker: ...
-  # web-dashboard: ...
